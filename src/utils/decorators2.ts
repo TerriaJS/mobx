@@ -86,6 +86,14 @@ export function createPropDecorator(
                 const inheritedDecorators = target.__mobxDecorators
                 addHiddenProp(target, "__mobxDecorators", { ...inheritedDecorators })
             }
+
+            // If there is already a decorator for this property, remove it first.
+            // This happens when a computed property is overridden in a derived class.
+            const existing = target.__mobxDecorators![prop];
+            if (existing !== undefined && existing.descriptor !== undefined) {
+                Object.defineProperty(existing.decoratorTarget, existing.prop, existing.descriptor);
+            }
+
             target.__mobxDecorators![prop] = {
                 prop,
                 propertyCreator,
